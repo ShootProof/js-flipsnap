@@ -263,6 +263,23 @@ Flipsnap.prototype.toPrev = function(transitionDuration) {
   self.moveToPoint(self.currentPoint - 1, transitionDuration);
 };
 
+Flipsnap.prototype._getAlignmentOffset = function() {
+  var self = this;
+
+  switch (self.alignment) {
+
+    case('right'):
+      return self._alignmentOffset - self._distance;
+
+    case('center'):
+      return self._alignmentOffset - (self._distance / 2);
+
+    case('left'):
+      return self._alignmentOffset;
+
+  }
+}
+
 Flipsnap.prototype.moveToPoint = function(point, transitionDuration) {
   var self = this;
   
@@ -293,25 +310,8 @@ Flipsnap.prototype.moveToPoint = function(point, transitionDuration) {
     self.animation = true;
   }
 
-  var alignmentElementOffset;
-
-  switch (self.alignment) {
-    case('right'):
-      alignmentElementOffset = self._distance;
-      break;
-
-    case('center'):
-      alignmentElementOffset = self._distance / 2;
-      break;
-
-    case('left'):
-      alignmentElementOffset = 0;
-      break;
-  }
-
   self._setX(
-    (- self.currentPoint * self._distance)
-    + (self._alignmentOffset - alignmentElementOffset),
+    (- self.currentPoint * self._distance) + self._getAlignmentOffset(),
     transitionDuration);
 
   if (beforePoint !== self.currentPoint) { // is move?
@@ -443,7 +443,7 @@ Flipsnap.prototype._touchEnd = function(event, type) {
     return;
   }
 
-  var newPoint = -self.currentX / self._distance;
+  var newPoint = -(self.currentX - self._getAlignmentOffset()) / self._distance;
   newPoint =
     (self.directionX > 0) ? Math.ceil(newPoint) :
     (self.directionX < 0) ? Math.floor(newPoint) :
