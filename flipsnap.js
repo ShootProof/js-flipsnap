@@ -106,6 +106,8 @@ Flipsnap.prototype.init = function(element, opts) {
     self.element.style.msTouchAction = 'pan-y';
   }
 
+  var validAlignmentValues = ['left', 'center', 'right'];
+
   // set opts
   opts = opts || {};
   self.distance = opts.distance;
@@ -114,6 +116,8 @@ Flipsnap.prototype.init = function(element, opts) {
   self.disable3d = (opts.disable3d === undefined) ? false : opts.disable3d;
   self.transitionDuration = (opts.transitionDuration === undefined) ? '350ms' : opts.transitionDuration + 'ms';
   self.threshold = opts.threshold || 0;
+  self.alignment = (opts.alignment === undefined || validAlignmentValues.indexOf(opts.alignment) === -1) ? 
+    'left' : opts.alignment;
 
   // set property
   self.currentPoint = 0;
@@ -204,6 +208,21 @@ Flipsnap.prototype.refresh = function() {
     self._distance = self.distance;
   }
 
+  switch (self.alignment) {
+    case('right'):
+      self._alignmentOffset = self.element.scrollWidth;
+      break;
+
+    case('center'):
+      self._alignmentOffset = self.element.scrollWidth / 2;
+      break;
+
+    default:
+    case('left'): // Left Aligned is default
+      self._alignmentOffset = 0;
+      break;
+  }
+
   // setting maxX
   self._maxX = -self._distance * self._maxPoint;
 
@@ -271,7 +290,23 @@ Flipsnap.prototype.moveToPoint = function(point, transitionDuration) {
   else {
     self.animation = true;
   }
-  self._setX(- self.currentPoint * self._distance, transitionDuration);
+
+  var alignmentElementOffset = 0;
+
+  switch (self.alignment) {
+    case('right'):
+      alignmentElementOffset = self._distance;
+      break;
+
+    case('center'):
+      alignmentElementOffset = self._distance / 2;
+      break;
+  }
+
+  self._setX(
+    (- self.currentPoint * self._distance)
+    + (self._alignmentOffset - alignmentElementOffset),
+    transitionDuration);
 
   if (beforePoint !== self.currentPoint) { // is move?
     // `fsmoveend` is deprecated
