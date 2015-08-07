@@ -118,6 +118,8 @@ Flipsnap.prototype.init = function(element, opts) {
   self.threshold = opts.threshold || 0;
   self.alignment = (opts.alignment === undefined || validAlignmentValues.indexOf(opts.alignment) === -1) ? 
     'left' : opts.alignment;
+  self.alignmentContainerElement = (opts.alignmentContainerElement === undefined) ?
+    self.element.parentElement : opts.alignmentContainerElement;
 
   // set property
   self.currentPoint = 0;
@@ -210,11 +212,11 @@ Flipsnap.prototype.refresh = function() {
 
   switch (self.alignment) {
     case('right'):
-      self._alignmentOffset = self.element.scrollWidth;
+      self._alignmentOffset = self.alignmentContainerElement.clientWidth;
       break;
 
     case('center'):
-      self._alignmentOffset = self.element.scrollWidth / 2;
+      self._alignmentOffset = self.alignmentContainerElement.clientWidth / 2;
       break;
 
     default:
@@ -291,7 +293,7 @@ Flipsnap.prototype.moveToPoint = function(point, transitionDuration) {
     self.animation = true;
   }
 
-  var alignmentElementOffset = 0;
+  var alignmentElementOffset;
 
   switch (self.alignment) {
     case('right'):
@@ -300,6 +302,10 @@ Flipsnap.prototype.moveToPoint = function(point, transitionDuration) {
 
     case('center'):
       alignmentElementOffset = self._distance / 2;
+      break;
+
+    case('left'):
+      alignmentElementOffset = 0;
       break;
   }
 
